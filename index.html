@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pamungkas Pro Like · Link Produk</title>
+<meta name="description" content="Rekomendasi produk pilihan yang worth it. Cari nomor produk dari video, lalu klik tombol beli.">
+<meta property="og:title" content="Pamungkas Pro Like · Link Produk">
+<meta property="og:description" content="Rekomendasi produk pilihan yang worth it.">
+<meta property="og:image" content="logo.png">
+<link rel="icon" href="logo.png">
+<style>
+  :root{--bg:#0b1430;--card:#16224a;--line:#2a3a6e;--text:#eef1fb;--muted:#a3adcf;--pk1:#ff8a5c;--pk2:#ff3d7f;--gd:#ffd54a}
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif;background:radial-gradient(120% 60% at 50% 0%,#1d2f63 0%,var(--bg) 60%);color:var(--text);min-height:100vh}
+  main{max-width:560px;margin:0 auto;padding:28px 16px 48px}
+  header{text-align:center;margin-bottom:18px}
+  header img{width:96px;height:96px;border-radius:50%;box-shadow:0 6px 24px #ff3d7f55}
+  h1{font-size:22px;margin:10px 0 4px}
+  .tag{color:var(--muted);margin:0}
+  .note{font-size:12px;color:var(--muted);background:#ffffff0d;border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:14px 0}
+  .search{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#0e1a3d;color:var(--text);font:inherit;margin-bottom:14px}
+  .item{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:10px}
+  .item img{width:64px;height:64px;border-radius:10px;object-fit:cover;background:#0e1a3d;flex:0 0 64px}
+  .no{flex:0 0 auto;min-width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-weight:800;background:linear-gradient(135deg,var(--pk1),var(--pk2))}
+  .info{flex:1;min-width:0}
+  .info b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .info small{color:var(--muted)}
+  .buy{flex:0 0 auto;text-decoration:none;color:#0b1430;background:var(--gd);font-weight:800;border-radius:10px;padding:9px 12px;font-size:13px}
+  .empty{text-align:center;color:var(--muted);padding:30px 10px}
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:22px}
+  footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="logo.png" alt="Pamungkas Pro Like">
+    <h1>Pamungkas Pro Like</h1>
+    <p class="tag">Rekomendasi produk pilihan yang worth it 🛒</p>
+  </header>
+  <input class="search" id="q" type="search" placeholder="🔎 Cari nomor atau nama produk (contoh: 12)" autocomplete="off">
+  <div id="list"><div class="empty">Memuat produk…</div></div>
+  <p class="note">ℹ️ Link di halaman ini adalah link afiliasi. Kalau kamu membeli lewat link ini, kami bisa dapat komisi kecil tanpa biaya tambahan untukmu. Harga &amp; stok bisa berubah, selalu cek di halaman tokonya.</p>
+  <footer>
+    <a href="https://www.facebook.com/1570370692824300" target="_blank" rel="noopener">Facebook</a> ·
+    Kerja sama: pamungkasgamepick@gmail.com
+  </footer>
+</main>
+<script>
+const SHOP = { shopee:['🟠','Shopee'], tokopedia:['🟢','Tokopedia'], tiktok:['⚫','TikTok Shop'], lazada:['🔵','Lazada'], blibli:['🔷','Blibli'], other:['🔗','Toko'] };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let items = [];
+function render(){
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const rows = items.filter(p => !q || String(p.no) === q.replace(/^#|^no\.?\s*/,'') || p.name.toLowerCase().includes(q));
+  document.getElementById('list').innerHTML = rows.length ? rows.map(p => {
+    const [ico, shop] = SHOP[p.shop] || SHOP.other;
+    const safe = /^https:\/\//.test(p.url) ? p.url : '#';
+    return `<div class="item" id="no-${p.no}">${p.image ? `<img src="${esc(p.image)}" alt="" loading="lazy">` : `<div class="no">${p.no}</div>`}
+      <div class="info"><b>${p.image ? `#${p.no} · ` : ''}${esc(p.name)}</b><small>${ico} ${shop}${p.note ? ' · ' + esc(p.note) : ''}</small></div>
+      <a class="buy" href="${esc(safe)}" target="_blank" rel="noopener sponsored nofollow">Beli</a></div>`;
+  }).join('') : `<div class="empty">${items.length ? 'Produk tidak ditemukan. Coba nomor lain.' : 'Produk pertama segera hadir. Follow dulu biar nggak ketinggalan! 👀'}</div>`;
+}
+document.getElementById('q').addEventListener('input', render);
+fetch('products.json?t=' + Date.now()).then(r => r.json()).then(d => { items = (d.products || []).sort((a, b) => b.no - a.no); render();
+  const h = location.hash.match(/^#(?:no-)?(\d+)$/); if (h) { document.getElementById('q').value = h[1]; render(); } })
+  .catch(() => { document.getElementById('list').innerHTML = '<div class="empty">Gagal memuat produk. Coba refresh.</div>'; });
+</script>
+</body>
+</html>
